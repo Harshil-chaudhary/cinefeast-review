@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soft Review System</title>
+    <!-- Include Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Optional: Google Fonts (Roboto) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #f0f4f8;
+            --card-bg-color: #ffffff;
+            --text-color: #374151;
+            --text-light-color: #6b7280;
+            --star-default-color: #d1d5db;
+            --star-hover-color: #facc15;
+            --star-active-color: #facc15;
+        }
+
+        body {
+            font-family: 'Roboto', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .review-container {
+            background-color: var(--card-bg-color);
+            padding: 35px 30px;
+            border-radius: 24px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            max-width: 450px;
+            width: 100%;
+            box-sizing: border-box;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        h2 {
+            color: var(--text-color);
+            font-weight: 500;
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1.6rem;
+        }
+
+        p {
+            color: var(--text-light-color);
+            margin-bottom: 25px;
+            line-height: 1.5;
+            font-size: 1rem;
+        }
+
+        .star-rating {
+            direction: ltr;
+            display: inline-block; /* Or flex, but inline-block is fine if sized correctly */
+            margin-bottom: 20px;
+            /* Prevents wrapping if possible, but shrinking items is better */
+            white-space: nowrap;
+        }
+
+        .star-rating i {
+            font-size: 2.8rem; /* Default size for larger screens */
+            color: var(--star-default-color);
+            cursor: pointer;
+            transition: color 0.2s ease-in-out, transform 0.15s ease-in-out;
+            padding: 0 6px; /* Default padding for larger screens */
+            will-change: transform;
+            vertical-align: middle; /* Helps alignment if using inline-block */
+        }
+
+        .star-rating i:hover {
+             transform: scale(1.1);
+        }
+
+        .star-rating i:active {
+             transform: scale(0.95);
+        }
+
+        #feedback-message {
+            margin-top: 10px;
+            font-style: italic;
+            color: var(--text-light-color);
+            font-size: 0.9rem;
+            min-height: 1.2em;
+        }
+
+        /* --- ADJUSTMENTS FOR MOBILE --- */
+        @media (max-width: 480px) {
+            h2 {
+                font-size: 1.4rem;
+            }
+            p {
+                font-size: 0.95rem;
+                 margin-bottom: 20px;
+            }
+
+            .star-rating i {
+                /* Smaller stars on small screens */
+                font-size: 2.1rem; /* ADJUST IF NEEDED */
+                /* Less padding between stars */
+                padding: 0 3px;   /* ADJUST IF NEEDED */
+            }
+
+            .review-container {
+                 /* Reduce card padding slightly */
+                padding: 30px 15px;
+                border-radius: 16px;
+            }
+        }
+
+        /* --- ADJUSTMENTS FOR VERY SMALL MOBILE --- */
+        @media (max-width: 360px) {
+            h2 { font-size: 1.3rem; }
+            p { font-size: 0.9rem; }
+
+            .star-rating i {
+                /* Even smaller stars */
+                font-size: 1.9rem; /* ADJUST IF NEEDED */
+                 /* Even less padding */
+                padding: 0 2px;    /* ADJUST IF NEEDED */
+            }
+            .review-container {
+                padding: 25px 10px; /* Less padding again */
+            }
+        }
+
+    </style>
+</head>
+<body>
+<!-- HTML remains the same -->
+<div class="review-container">
+    <h2>Rate Your Experience</h2>
+    <p>How was your visit? Tap a star to let us know!</p>
+    <div class="star-rating">
+        <i class="fa-solid fa-star" data-value="1" title="Terrible"></i><i class="fa-solid fa-star" data-value="2" title="Poor"></i><i class="fa-solid fa-star" data-value="3" title="Average"></i><i class="fa-solid fa-star" data-value="4" title="Good"></i><i class="fa-solid fa-star" data-value="5" title="Excellent"></i>
+    </div>
+    <p id="feedback-message"></p>
+</div>
+
+<!-- JavaScript remains the same -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const stars = document.querySelectorAll('.star-rating i');
+        const feedbackMessage = document.getElementById('feedback-message');
+
+        // --- URL Configuration (REPLACE PLACEHOLDERS) ---
+        function getGoogleMapsURL() {
+            const placeId = 'ChIJrYM_8A_xDDkRON2lSo2JraM'; // <--- REPLACE
+            if (placeId === 'YOUR_PLACE_ID' || !placeId) {
+                console.warn("Google Place ID not set. Using placeholder.");
+                return 'https://www.google.com/maps/search/?api=1&query=Your+Business+Name+City';
+            }
+            return `https://search.google.com/local/writereview?placeid=${placeId}`;
+        }
+        function getGoogleFormURL() {
+             const formId = '1FAIpQLScVds43pjhwO8o4zT_K9wVjYbNUawGlltTadxhgc3rgo5ERIQ'; // <--- REPLACE
+             if (formId === 'YOUR_GOOGLE_FORM_ID' || !formId) {
+                 console.warn("Google Form ID not set. Using placeholder.");
+                 return 'https://docs.google.com/forms/u/0/';
+             }
+             return `https://docs.google.com/forms/d/e/${formId}/viewform?usp=sf_link`;
+        }
+        const finalGoogleMapsURL = getGoogleMapsURL();
+        const finalGoogleFormURL = getGoogleFormURL();
+        // --- End URL Configuration ---
+
+        const starDefaultColor = getComputedStyle(document.documentElement).getPropertyValue('--star-default-color').trim();
+        const starActiveColor = getComputedStyle(document.documentElement).getPropertyValue('--star-active-color').trim();
+
+        stars.forEach(star => {
+            star.addEventListener('click', () => {
+                const rating = parseInt(star.getAttribute('data-value'));
+                feedbackMessage.textContent = `Thank you! Processing your ${rating}-star rating...`;
+                 stars.forEach((s, index) => {
+                     s.style.color = index < rating ? starActiveColor : starDefaultColor;
+                 });
+                setTimeout(() => {
+                    if (rating === 5) {
+                        window.location.href = finalGoogleMapsURL;
+                    } else {
+                        window.location.href = finalGoogleFormURL;
+                    }
+                }, 200);
+            });
+
+            star.addEventListener('mouseover', () => {
+                const hoverValue = parseInt(star.getAttribute('data-value'));
+                stars.forEach((s, index) => {
+                    s.style.color = index < hoverValue ? starActiveColor : starDefaultColor;
+                });
+            });
+        });
+
+        const starContainer = document.querySelector('.star-rating');
+        starContainer.addEventListener('mouseleave', () => {
+            stars.forEach(s => {
+                s.style.color = starDefaultColor;
+            });
+        });
+    });
+</script>
+
+</body>
+</html>
